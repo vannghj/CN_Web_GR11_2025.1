@@ -55,6 +55,15 @@ export default function HomePage() {
     fetchMovies();
   }, []);
 
+  // Most rated movies (by number of ratings)
+  const mostRatedMovies = React.useMemo(() => {
+    return [...movies].sort((a, b) => {
+      const diff = (b.ratingCount || 0) - (a.ratingCount || 0);
+      if (diff !== 0) return diff;
+      return (b.averageRating || 0) - (a.averageRating || 0);
+    });
+  }, [movies]);
+
   const nextSlide = () => {
     const totalSlides = movies.length > 0 ? movies.length : 7;
     setCurrentSlide((prev) => (prev + 1) % totalSlides);
@@ -195,7 +204,7 @@ export default function HomePage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
           {/* Popular Interest */}
           <div>
-            <h2 className="text-3xl font-bold mb-6 text-gray-900">Popular Interest</h2>
+            <h2 className="text-3xl font-bold mb-6 text-gray-900">Nhiều rating nhất</h2>
             <div className="bg-gray-200 p-8 rounded-lg">
               <div className="flex justify-between gap-5 mb-5">
                 {loading ? (
@@ -207,12 +216,12 @@ export default function HomePage() {
                       <div className="animate-pulse bg-gray-200 w-full h-full rounded-lg"></div>
                     </div>
                   ))
-                ) : topRatedMovies.length === 0 ? (
+                ) : mostRatedMovies.length === 0 ? (
                   <div className="flex-1 text-center text-gray-500 py-8">
                     No movies available
                   </div>
                 ) : (
-                  topRatedMovies.slice(0, 3).map((movie) => (
+                  mostRatedMovies.slice(0, 3).map((movie) => (
                     <div 
                       key={movie._id} 
                       onClick={() => navigate(`/movie/${movie._id}`)}
@@ -257,7 +266,7 @@ export default function HomePage() {
                           {movie.ratingCount > 0 && (
                             <>
                               <span>•</span>
-                              <span>{movie.ratingCount} ratings</span>
+                              <span>{movie.ratingCount} lượt đánh giá</span>
                             </>
                           )}
                         </div>
@@ -271,7 +280,7 @@ export default function HomePage() {
                 className="flex items-center gap-2 text-gray-800 hover:text-gray-600 transition"
               >
                 <Menu size={18} strokeWidth={2} />
-                <span className="font-semibold text-sm">View All Popular</span>
+                <span className="font-semibold text-sm">Xem tất cả</span>
               </button>
             </div>
             <h3 className="text-xl font-semibold mt-4 text-gray-900">What to watch this month</h3>
@@ -369,7 +378,7 @@ export default function HomePage() {
           <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             {/* Header */}
             <div className="sticky top-0 bg-white border-b px-6 py-4 flex items-center justify-between">
-              <h2 className="text-2xl font-bold text-gray-900">What to watch in November</h2>
+              <h2 className="text-2xl font-bold text-gray-900">Phim nhiều rating nhất</h2>
               <button 
                 onClick={() => setShowPopularInterest(false)}
                 className="p-2 hover:bg-gray-100 rounded-full transition"
@@ -381,12 +390,12 @@ export default function HomePage() {
             {/* Content */}
             <div className="p-6">
               <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-                {topRatedMovies.length === 0 ? (
+                {mostRatedMovies.length === 0 ? (
                   <div className="col-span-3 text-center text-gray-500 py-8">
-                    No popular movies available
+                    Chưa có phim
                   </div>
                 ) : (
-                  topRatedMovies.map((movie) => (
+                  mostRatedMovies.map((movie) => (
                     <div 
                       key={movie._id}
                       onClick={() => {
@@ -415,6 +424,9 @@ export default function HomePage() {
                       <div className="flex items-center gap-2 mt-1">
                         <Star size={16} className="text-yellow-500" fill="#eab308" />
                         <span className="text-sm text-gray-600">{movie.averageRating?.toFixed(1) || '0.0'}</span>
+                      </div>
+                      <div className="text-sm text-gray-600 mt-1">
+                        {movie.ratingCount || 0} lượt đánh giá
                       </div>
                     </div>
                   ))
